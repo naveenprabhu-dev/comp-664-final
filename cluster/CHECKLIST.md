@@ -5,8 +5,24 @@ Fill in the blanks (partitions, module versions, QOS, paths) with the REAL value
 you discover in Step 3, then update `cluster/modules.sh` and `cluster/slurm/*.sbatch`
 to match. Record results inline (✅ / ❌ + notes) so the team can see the state.
 
-Prereq: a Longleaf account (ONYEN) and, for GPUs, access to the `gpu_access` QOS
-(request via the UNC/ITS research-computing GPU access form if you don't have it).
+## Step 0 — Request a Longleaf account (do this FIRST)
+A valid ONYEN is NOT enough. You must request compute-cluster access and be
+provisioned before you can SSH in (otherwise the login just loops on the
+password prompt and is denied).
+
+- Request access here:
+  https://tdx.unc.edu/TDClient/33/Portal/Requests/ServiceOffering/24/Compute-Cluster-Access/Request
+- For GPUs, also request access to the `gpu_access` QOS as part of (or after)
+  the request.
+- This is a class project (COMP 664) — check with your instructor/TA first, in
+  case student accounts / an allocation are already arranged.
+- [ ] account requested
+- [ ] account provisioned (you can SSH in)
+
+Credentials note: Longleaf uses your ONYEN username + password (no separate
+password) plus Duo 2FA. Off-campus you must be on the UNC VPN (vpn.unc.edu);
+otherwise `ssh` times out before any prompt. A just-changed ONYEN password can
+take ~15-30 min to propagate.
 
 ---
 
