@@ -11,6 +11,8 @@ different machine, you only change files here.
 - `env/environment.yml` — conda env with the CUDA training stack
   (torch/transformers/peft/bitsandbytes/trl). This is the heavy, GPU-specific
   dependency set, separate from the portable `requirements.txt` at the repo root.
+  **⚠️ UNVERIFIED on Longleaf** — the CUDA/torch pins are a best-guess; run
+  `CHECKLIST.md` Step 6 (GPU smoke test) before trusting it for training.
 - `slurm/` — SBATCH job templates (data download, fine-tuning).
 
 ## Typical workflow on Longleaf

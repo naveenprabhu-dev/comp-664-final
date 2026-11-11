@@ -1,3 +1,14 @@
+# =============================================================================
+# WARNING: UNVERIFIED ON LONGLEAF (as of 2026-11-11).
+# This file is a best-guess and has never been run on the cluster. Before
+# building any training code on top of it, run cluster/CHECKLIST.md Step 6
+# on an interactive GPU node:
+#     python -c "import torch; print(torch.cuda.is_available())"
+#     python -c "import bitsandbytes"
+# If either fails, re-pin pytorch-cuda (and possibly bitsandbytes) to match
+# the node's CUDA version from `nvidia-smi` / `module avail cuda`.
+# =============================================================================
+#
 # Heavy, CUDA/Longleaf-specific training environment.
 # Kept separate from the repo-root requirements.txt (portable, data-only).
 # Create with:  conda env create -f cluster/env/environment.yml
