@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orderbias"
+version = "0.1.0"
+description = "Answer-order-bias study for learned response evaluators (COMP 664 final)."
+requires-python = ">=3.10"
+dependencies = [
+    "datasets>=2.18",
+    "huggingface_hub>=0.23",
+    "requests>=2.31",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

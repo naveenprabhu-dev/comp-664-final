@@ -1,0 +1,31 @@
+# Heavy, CUDA/Longleaf-specific training environment.
+# Kept separate from the repo-root requirements.txt (portable, data-only).
+# Create with:  conda env create -f cluster/env/environment.yml
+#
+# NOTE: pin CUDA/torch versions to whatever the Longleaf GPU nodes support.
+# bitsandbytes is required for QLoRA (4-bit) and needs a matching CUDA build.
+name: orderbias
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch
+  - pytorch-cuda=12.1
+  - pip:
+      # portable core deps
+      - datasets>=2.18
+      - huggingface_hub>=0.23
+      - requests>=2.31
+      # fine-tuning stack (TODOs #4-#6)
+      - transformers>=4.44
+      - peft>=0.12
+      - accelerate>=0.33
+      - bitsandbytes>=0.43
+      - trl>=0.9
+      # analysis (TODO #8)
+      - numpy
+      - pandas
+      - matplotlib

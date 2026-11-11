@@ -1,0 +1,8 @@
+# Portable core dependencies (data unification + local development).
+# These run anywhere (laptop or cluster login node) and have no CUDA dependency.
+# Training/fine-tuning dependencies live in cluster/env/ because they are
+# CUDA/Longleaf-specific (see TODO #1b: isolate the cluster-facing environment).
+
+datasets>=2.18
+huggingface_hub>=0.23
+requests>=2.31

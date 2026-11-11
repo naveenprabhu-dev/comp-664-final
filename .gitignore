@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+/env/
+
+# Data / model artifacts (do not commit large files)
+# Anchored to repo root so it does NOT match the src/orderbias/data package.
+/data/
+*.jsonl
+*.jsonl.gz
+outputs/
+checkpoints/
+wandb/
+
+# HF / torch caches
+.cache/
+*.safetensors
+*.bin
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Cluster logs
+cluster/logs/
+slurm-*.out
+*.err
