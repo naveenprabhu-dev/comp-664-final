@@ -1,9 +1,10 @@
-# Qwen3.5 backbone loading (Phase 2)
+# Qwen3.5 judges (Phases 2 and 3)
 
 `config.py` and `interfaces.py` remain lightweight. `backbone.py` also imports the
-training stack only when a model operation is called. Heads and judge forward
-wrappers arrive in Phase 3; the returned backbone produces `last_hidden_state`
-with shape `[batch, length, hidden_size]` and computes no task loss.
+training stack only when a model operation is called. `heads.py`, `judges.py`,
+and `checkpoints.py` explicitly import the training stack. Bare backbones produce
+`last_hidden_state` with shape `[batch, length, hidden_size]`; judge wrappers
+produce class logits or scalar scores. Neither computes a task loss.
 
 ## Loading
 
@@ -75,13 +76,86 @@ For QLoRA, set `quantization.mode: "4bit"` with a matching compute dtype.
 The loader requires CUDA and bitsandbytes, loads 4-bit layers, then calls PEFT's
 `prepare_model_for_kbit_training` before attachment. Nonquantized parameters may
 be promoted to FP32 by that preparation. Head-only mode returns a fully frozen
-backbone without adapters; a later task head supplies the trainable parameters.
-No head training assertion is possible until that head exists in Phase 3.
+backbone without adapters; the task head supplies the trainable parameters.
+Judge construction verifies that every head parameter trains and the backbone's
+trainable parameters match its prepared adapter report.
 
 The report records adapter shapes/dtypes, trainable names/counts, logical total
 parameter count, device, requested/resolved backbone revision, ignored checkpoint
 keys, and dependency versions. It is not an adapter checkpoint or tokenizer
-manifest. Saving/reloading complete judges and tokenizer metadata comes later.
+manifest. Compact judge save/reload is described below; tokenizer metadata and
+resumable training state come later.
+
+## Heads and judge forward passes
+
+```python
+from orderbias.models.judges import load_judge
+from orderbias.models.interfaces import TokenBatch
+
+judge = load_judge(config, device="cuda:0", local_files_only=True)
+judge.eval()
+# Token IDs/masks are already formatted and on the judge's device.
+output = judge(TokenBatch(input_ids=input_ids, attention_mask=attention_mask))
+# PairwiseJudge: output.logits [B, 2], columns A preferred then B preferred.
+# SharedScorer: output.scores [B], one independent answer per input row.
+```
+
+Use the scorer experiment configuration to construct `SharedScorer`. Score both
+candidates using the same instance, identical formatting, and independent text
+budgets. Compare `score_A - score_B`; swapping candidates negates the difference
+under deterministic inference. Eval mode disables LoRA dropout. The wrapper
+does not see slot labels, generate text, compute a loss, or select a winner.
+An exact score/logit tie remains available for downstream abstention.
+
+Heads are linear, fully trainable, and initialized from a local CPU generator
+using `training.seed`, independently of global RNG consumption. Weight standard
+deviation and optional zero-initialized bias follow `JudgeConfig`. Both the head
+parameters and head computation start in FP32, including inside an autocast
+context. Pooled states are differentiably cast into the head's dtype. Place
+models using the loader or device-only moves; do not cast the entire judge to
+half precision if retaining this policy.
+
+Both wrappers pool the final valid token using the attention mask rather than
+`length - 1` or `mask.sum() - 1`. Inputs must be nonempty `[B, L]`, with integer
+IDs and a binary mask containing a nonempty contiguous valid region per row.
+Left/right padding is supported, but internal gaps are rejected. Position IDs
+are derived from mask cumulative counts to keep valid text positions unchanged
+by padding. All tensors must be on the same device. Inputs exceeding the
+configured length fail; the wrappers never truncate complete inputs.
+
+Use `build_judge(prepared_backbone, config)` for an already prepared model.
+Backbone, LoRA, and quantization settings must match those used to prepare it;
+judge/data settings can differ. `load_judge` and direct constructors start in
+training mode. `judge.parameter_summary()` reports all trainable names and
+separate head/adapter counts without changing model mode.
+
+## Compact save and reload
+
+```python
+from orderbias.models.checkpoints import save_judge_checkpoint, load_judge_checkpoint
+
+save_judge_checkpoint(judge, "outputs/run_01/judge")
+restored = load_judge_checkpoint(
+    "outputs/run_01/judge", device="cuda:0", local_files_only=True,
+)
+# restored is in eval mode; call train() before further optimization.
+```
+
+The destination must be new or empty. This project-specific format saves
+`trainable.safetensors` containing every adapter and head parameter,
+`resolved_config.json`, `backbone_report.json`, and a final `manifest.json` with
+the format version, label convention, and parameter summary. It does not use
+pickle or duplicate frozen backbone weights. A resolved Hub commit is pinned in
+the saved config. Local backbone directory references are made absolute and
+must retain their original contents; moving a checkpoint alone does not make
+the referenced local base portable.
+
+Reload reconstructs the referenced backbone and head, checks the exact saved
+trainable names/shapes/dtypes, and copies all trainable tensors. Missing heads
+or adapters fail rather than silently reinitializing parameters. The format is
+intended for judge inference/restarting optimization, not exact training
+resumption: tokenizer assets, optimizer/scheduler state, and RNG state are not
+included yet. It is separate from PEFT's adapter-only export format.
 
 ## Verification
 

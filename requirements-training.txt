@@ -4,5 +4,6 @@ torch>=2.6
 transformers==5.3.0
 peft==0.18.1
 accelerate>=1.0
+safetensors>=0.4
 # CUDA-only QLoRA dependency; not required for ordinary LoRA:
 # bitsandbytes>=0.43

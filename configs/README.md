@@ -3,7 +3,8 @@
 Configuration and judge protocols work without PyTorch, PEFT, CUDA, or downloads.
 YAML loading requires the lightweight PyYAML dependency. Backbone construction
 and adapter resolution now live in `src/orderbias/models/backbone.py` (see its
-directory README). Tokenization, heads, and training remain later phases.
+directory README). Concrete heads, judge forward passes, and compact checkpoint
+save/reload are implemented. Tokenization and training remain later phases.
 
 ```python
 from orderbias.models.config import load_config
@@ -58,8 +59,9 @@ are starting values, not a tuned recipe or evidence of checkpoint compatibility.
 
 ## Inputs, outputs, and preprocessing policy
 
-`orderbias.models.interfaces` defines generic tensor protocols, not runnable
-models. Both accept `TokenBatch(input_ids, attention_mask)` with shape `[B, L]`.
+`orderbias.models.interfaces` defines generic tensor protocols; concrete models
+live in `orderbias.models.judges`. Both accept
+`TokenBatch(input_ids, attention_mask)` with shape `[B, L]`.
 The pairwise judge returns logits `[B, 2]` (column 0 = A preferred, 1 = B).
 The scorer returns scores `[B]` for a prompt plus one answer. Use the same scorer
 instance for both candidates. Losses and labels remain outside these forward
@@ -79,7 +81,11 @@ template compatibility will be verified during model and tokenizer integration.
 The initial contract requests non-thinking formatting and a normal-initialized,
 fully trainable linear head (standard deviation 0.02, zero bias initialization
 when bias is enabled). `output_dim` derives from the judge kind. The original
-vocabulary head is unused. Phase 2 adapters train in FP32; heads remain unimplemented.
+vocabulary head is unused. Both adapters and task heads train in FP32. Head
+initialization uses a local generator seeded from `training.seed`, independent
+of backbone/adapter random-number consumption. Complete-input masks must be
+binary, nonempty per row, and contain no internal padding gaps. Judges compute
+text positions from the mask, so left padding does not shift valid positions.
 
 ## Training settings reserved for later phases
 

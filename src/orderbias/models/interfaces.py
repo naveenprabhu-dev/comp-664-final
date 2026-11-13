@@ -1,4 +1,4 @@
-"""Backend-independent judge contracts. No concrete models or losses yet.
+"""Backend-independent judge contracts; concrete models live in judges.py.
 
 The tensor type is generic so these protocols can later be specialized to
 torch.Tensor without importing torch during configuration or data preparation.
@@ -42,7 +42,7 @@ class ScorerOutput(Generic[Tensor]):
 
     Compare two calls to the same scorer via score_A - score_B. A positive
     difference favors A (label 0); zero is an abstention. The scalar head's
-    trailing singleton dimension is removed by the future implementation.
+    trailing singleton dimension is removed by the judge.
     """
 
     scores: Tensor

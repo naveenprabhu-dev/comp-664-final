@@ -2,8 +2,10 @@
 
 Status: Phase 1 implemented. Phase 2 loader/adapter code is implemented and
 verified with tiny real Qwen3.5 models on CPU; target-GPU and QLoRA execution
-checks remain pending. Judge heads and training have not started. Implement and
-review one phase at a time; CPU checks do not establish cluster compatibility.
+checks remain pending. Phase 3 heads, judge forward passes, and compact
+save/reload are implemented and CPU-tested. Tokenization and training have not
+started. Implement one phase at a time; CPU checks do not establish cluster
+compatibility.
 
 ## Objective and experimental conditions
 
@@ -226,6 +228,16 @@ shared scorer. Fully train and save heads independently of adapter targeting.
 Completion: correct output shapes and padding behavior; the scalar scorer uses
 shared weights and reproduces scores under candidate reordering in eval mode;
 a save/reload check preserves predictions within the chosen numerical tolerance.
+
+Implemented in `models/heads.py`, `models/judges.py`, and
+`models/checkpoints.py`: deterministic FP32 linear heads, validated last-valid
+token pooling, padding-independent text positions, classification logits [B, 2],
+and scalar scores [B]. The heads fully train alongside the prepared adapters;
+the head-only baseline works without adapters. Tiny hybrid-Qwen tests verify
+padding and batch-order invariance, gradients/frozen weights, and identical CPU
+predictions after save/reload. Compact checkpoints store all adapters and head
+parameters plus configuration/provenance while referencing the frozen base.
+They do not yet include tokenizer assets or resumable optimizer/RNG state.
 
 ### Phase 4: training data and objectives
 

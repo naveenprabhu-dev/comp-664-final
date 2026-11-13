@@ -2,7 +2,8 @@
 
 Heavy dependencies are imported only when a model operation is requested.
 Configuration and report inspection therefore remain usable on data-only hosts.
-No judge heads, pooling, tokenization, or training loop are implemented here.
+Judge heads and pooling live in heads.py/judges.py; no tokenizer or training
+loop is implemented here.
 """
 
 from __future__ import annotations
@@ -57,6 +58,7 @@ class BackboneReport:
 class LoadedBackbone:
     model: nn.Module  # Returns .last_hidden_state [batch, length, hidden_size]
     report: BackboneReport
+    config: ExperimentConfig
 
 
 def _dependencies() -> tuple[Any, Any]:
@@ -172,7 +174,7 @@ def prepare_backbone(
             layer = base.get_submodule(name)
             # Explicit policy: train adapters in FP32, including BF16/QLoRA runs.
             # PEFT casts inputs to adapter dtype and adds the correction back in
-            # the base layer's output dtype. The future head chooses its dtype.
+            # the base layer's output dtype. Judge heads also compute in FP32.
             layer.lora_A["default"].to(dtype=torch.float32)
             layer.lora_B["default"].to(dtype=torch.float32)
             a, b = layer.lora_A["default"].weight, layer.lora_B["default"].weight
@@ -209,7 +211,7 @@ def prepare_backbone(
         versions=versions,
         ignored_checkpoint_keys=ignored_checkpoint_keys,
     )
-    return LoadedBackbone(model, report)
+    return LoadedBackbone(model, report, config)
 
 
 def load_backbone(

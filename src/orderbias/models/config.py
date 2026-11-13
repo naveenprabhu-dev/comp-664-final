@@ -218,7 +218,7 @@ class ExperimentConfig(_Section):
         return _decode(cls, value, "config")
 
     def save_json(self, path: str | Path) -> None:
-        """Write settings only; checkpoint provenance is recorded by the future loader."""
+        """Write settings only; the backbone report records checkpoint provenance."""
         Path(path).write_text(json.dumps(self.to_dict(), indent=2) + "\n", encoding="utf-8")
 
 
