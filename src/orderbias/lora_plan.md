@@ -3,9 +3,10 @@
 Status: Phase 1 implemented. Phase 2 loader/adapter code is implemented and
 verified with tiny real Qwen3.5 models on CPU; target-GPU and QLoRA execution
 checks remain pending. Phase 3 heads, judge forward passes, and compact
-save/reload are implemented and CPU-tested. Tokenization and training have not
-started. Implement one phase at a time; CPU checks do not establish cluster
-compatibility.
+save/reload are implemented and CPU-tested. Phase 4 tokenization, augmentation,
+objectives, and single-device training are implemented; tiny training runs cover
+all three conditions. Actual Qwen tokenizer formatting is verified. Full-model
+GPU training remains pending; CPU checks do not establish cluster compatibility.
 
 ## Objective and experimental conditions
 
@@ -248,6 +249,17 @@ Keep canonical unified examples unchanged.
 Completion: inspect actual formatted examples; verify swap labels and split
 integrity; verify the ranking loss favors the preferred answer; run a tiny
 training smoke check that exercises adapters and heads.
+
+Implemented under `training/`, with `scripts/train_judge.py` as a thin launcher.
+Independent Unicode-safe text clipping precedes formatting and swapping; complete
+template overflow fails. Training consumes full microbatches under a fixed
+optimizer-step budget and records actual exposure. Augmented twins stay adjacent
+and receive both orientations. Validation uses HelpSteer2 only, selecting by mean
+NLL across both orders for pairwise judges. Runs save tokenizers/template
+provenance, input previews, truncation/exposure counts, metrics, and best/final
+compact judges. Tiny actual hybrid-Qwen runs test all three objectives/conditions,
+weight freezing, gradients, and reload behavior. See `training/README.md` for
+commands, artifact definitions, and current single-device/no-resume limitations.
 
 ### Phase 5: Longleaf integration
 

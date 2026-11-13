@@ -176,12 +176,15 @@ class TrainingConfig(_Section):
     scheduler: Literal["linear", "cosine", "constant"] = "linear"
     warmup_ratio: float = 0.03
     max_steps: int = 1000  # Optimizer steps, not epochs; provisional run budget
+    eval_steps: int = 100
+    logging_steps: int = 10
+    max_grad_norm: float = 1.0
 
     def _validate(self) -> None:
         if self.seed < 0:
             raise ValueError("seed must be nonnegative")
-        for name in ("batch_size", "gradient_accumulation_steps", "max_steps",
-                     "adapter_learning_rate", "head_learning_rate"):
+        for name in ("batch_size", "gradient_accumulation_steps", "max_steps", "eval_steps",
+                     "logging_steps", "max_grad_norm", "adapter_learning_rate", "head_learning_rate"):
             _positive(name, getattr(self, name))
         if self.weight_decay < 0:
             raise ValueError("weight_decay must be nonnegative")
@@ -201,6 +204,9 @@ class ExperimentConfig(_Section):
     def _validate(self) -> None:
         if self.judge.kind == "shared_scorer" and self.data.augmentation != "none":
             raise ValueError("shared_scorer uses independent scores; disable swap augmentation")
+        presentations = self.training.max_steps * self.training.batch_size * self.training.gradient_accumulation_steps
+        if self.data.augmentation == "both_orders" and presentations % 2:
+            raise ValueError("both_orders requires an even total training presentation budget")
         if self.quantization.mode == "4bit":
             if self.quantization.compute_dtype != self.backbone.compute_dtype:
                 raise ValueError("4-bit compute_dtype must match backbone.compute_dtype")

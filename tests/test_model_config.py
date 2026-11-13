@@ -71,6 +71,10 @@ def test_merge_precedence_and_no_mutation(tmp_path):
     {"quantization": {"mode": "4bit", "compute_dtype": "float16"}},
     {"training": {"max_steps": -1}},
     {"training": {"warmup_ratio": 1}},
+    {"training": {"eval_steps": 0}},
+    {"training": {"max_grad_norm": 0}},
+    {"data": {"augmentation": "both_orders"},
+     "training": {"batch_size": 1, "gradient_accumulation_steps": 1, "max_steps": 1}},
     {"backbone": {"enable_thinking": True}},
 ])
 def test_invalid_settings_fail(override):
@@ -112,6 +116,7 @@ import orderbias
 from orderbias.data.schema import UnifiedExample
 from orderbias.models.config import ExperimentConfig
 from orderbias.models.backbone import BackboneReport, load_backbone
+from orderbias.training.data import JudgeEncoder, validate_training_splits
 from orderbias.models.interfaces import TokenBatch, PairwiseOutput, ScorerOutput
 assert ExperimentConfig().judge.output_dim == 2
 '''

@@ -83,8 +83,8 @@ trainable parameters match its prepared adapter report.
 The report records adapter shapes/dtypes, trainable names/counts, logical total
 parameter count, device, requested/resolved backbone revision, ignored checkpoint
 keys, and dependency versions. It is not an adapter checkpoint or tokenizer
-manifest. Compact judge save/reload is described below; tokenizer metadata and
-resumable training state come later.
+manifest. Compact judge save/reload is described below. The training runner adds
+tokenizer assets/metadata; resumable training state remains unimplemented.
 
 ## Heads and judge forward passes
 
@@ -155,7 +155,9 @@ trainable names/shapes/dtypes, and copies all trainable tensors. Missing heads
 or adapters fail rather than silently reinitializing parameters. The format is
 intended for judge inference/restarting optimization, not exact training
 resumption: tokenizer assets, optimizer/scheduler state, and RNG state are not
-included yet. It is separate from PEFT's adapter-only export format.
+included by the model-only saving function. The training runner additionally
+saves tokenizer assets and metadata inside each selected/final checkpoint. It
+is separate from PEFT's adapter-only export format.
 
 ## Verification
 

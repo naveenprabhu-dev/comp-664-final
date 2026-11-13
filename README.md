@@ -23,8 +23,10 @@ src/orderbias/          Portable core (no cluster paths; lightweight data/config
     loaders.py          load_helpsteer2(), load_llmbar(), load_unified()
     splits.py           prompt-group integrity / split helpers
   models/               Config, LoRA backbone, task heads, judges, compact checkpoints
+  training/             Templates, truncation, preference losses, single-device training
 configs/                Model and experiment YAML files (see configs/README.md)
 scripts/                build_unified_dataset.py  (run anywhere)
+                        train_judge.py  (training environment; see training/README.md)
 cluster/                ISOLATED Longleaf layer: SLURM, modules, conda env
 tests/                  offline adapter tests
 requirements.txt        portable, data-only deps
