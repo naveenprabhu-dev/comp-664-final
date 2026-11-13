@@ -111,6 +111,7 @@ sys.meta_path.insert(0, BlockHeavy())
 import orderbias
 from orderbias.data.schema import UnifiedExample
 from orderbias.models.config import ExperimentConfig
+from orderbias.models.backbone import BackboneReport, load_backbone
 from orderbias.models.interfaces import TokenBatch, PairwiseOutput, ScorerOutput
 assert ExperimentConfig().judge.output_dim == 2
 '''

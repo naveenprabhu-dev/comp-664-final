@@ -1,8 +1,9 @@
 # Plan: configurable LoRA judges
 
-Status: Phase 1 configuration and interfaces implemented; model loading and
-training have not started. Implement and review one phase at a time. This
-document records the intended design, not verified model/library compatibility.
+Status: Phase 1 implemented. Phase 2 loader/adapter code is implemented and
+verified with tiny real Qwen3.5 models on CPU; target-GPU and QLoRA execution
+checks remain pending. Judge heads and training have not started. Implement and
+review one phase at a time; CPU checks do not establish cluster compatibility.
 
 ## Objective and experimental conditions
 
@@ -207,6 +208,15 @@ are not evidence of Qwen3.5 support.
 Completion: a small load/forward/backward check confirms the intended modules
 receive adapters, only intended parameters get gradients, and the selected
 precision path works on the target GPU. Validate QLoRA separately if enabled.
+
+Implemented in `models/backbone.py`: text-only checkpoint loading with missing
+weight checks, exact language projection targeting, frozen originals, FP32 LoRA
+matrices, optional non-reentrant gradient checkpointing, CUDA 4-bit preparation,
+and JSON parameter/provenance reporting. CPU integration checks cover actual
+hybrid attention, synthetic full-checkpoint extraction, standalone text loading,
+and frozen-weight preservation through optimizer steps. `scripts/check_backbone.py`
+provides the explicit pretrained/GPU smoke check; the CUDA 4-bit integration test
+is skipped on CPU-only hosts. See `models/README.md` for usage and limitations.
 
 ### Phase 3: heads and judge forward passes
 

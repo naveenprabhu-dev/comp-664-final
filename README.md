@@ -22,12 +22,13 @@ src/orderbias/          Portable core (no cluster paths; lightweight data/config
     adapters.py         adapt_helpsteer2(), adapt_llmbar()  (minimal adapters)
     loaders.py          load_helpsteer2(), load_llmbar(), load_unified()
     splits.py           prompt-group integrity / split helpers
-  models/               Validated experiment config and judge protocols (no torch)
+  models/               Config, judge protocols, text backbone loading and LoRA
 configs/                Model and experiment YAML files (see configs/README.md)
 scripts/                build_unified_dataset.py  (run anywhere)
 cluster/                ISOLATED Longleaf layer: SLURM, modules, conda env
 tests/                  offline adapter tests
 requirements.txt        portable, data-only deps
+requirements-training.txt  Tested Transformers/PEFT stack; choose GPU torch separately
 cluster/env/            heavy CUDA training deps (separate on purpose)
 ```
 

@@ -32,9 +32,11 @@ dependencies:
       - requests>=2.31
       - PyYAML>=6.0
       # fine-tuning stack (TODOs #4-#6)
-      - transformers>=4.44
-      - peft>=0.12
-      - accelerate>=0.33
+      # Qwen3.5 tiny CPU load/gradient checks passed with these versions.
+      # CUDA and bitsandbytes compatibility still require the GPU smoke check.
+      - transformers==5.3.0
+      - peft==0.18.1
+      - accelerate>=1.0
       - bitsandbytes>=0.43
       - trl>=0.9
       # analysis (TODO #8)

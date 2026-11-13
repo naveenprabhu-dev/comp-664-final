@@ -1,8 +1,9 @@
-# Judge configuration (Phase 1)
+# Judge configuration
 
 Configuration and judge protocols work without PyTorch, PEFT, CUDA, or downloads.
-YAML loading requires the lightweight PyYAML dependency. Model construction,
-adapter target resolution, tokenization, and training are later phases.
+YAML loading requires the lightweight PyYAML dependency. Backbone construction
+and adapter resolution now live in `src/orderbias/models/backbone.py` (see its
+directory README). Tokenization, heads, and training remain later phases.
 
 ```python
 from orderbias.models.config import load_config
@@ -21,16 +22,17 @@ Mappings merge recursively; scalars and arrays replace earlier values. No
 implicit environment overrides or recursive file inheritance are applied.
 Unknown keys and malformed types fail, even if a later layer replaces them;
 cross-field constraints are checked on the final merged configuration.
-The loader accepts YAML or JSON. `ExperimentConfig.from_dict()` can restore a
+The config loader accepts YAML or JSON. `ExperimentConfig.from_dict()` can restore a
 saved resolved JSON mapping. Revisions default to `main` for initial exploration;
-pin a commit for reproducible runs. The future loader must record resolved model
-and tokenizer commits, not just the requested revision.
+pin a commit for reproducible runs. The backbone loader records the resolved
+model commit; tokenizer loading and its provenance will be added later.
 
 ## Modes and targets
 
 - LoRA: `lora.enabled: true`, `quantization.mode: none` (default).
 - QLoRA: override `quantization.mode: "4bit"`. Its compute dtype must match the
-  backbone compute dtype. Hardware/library support is not checked in this phase.
+  backbone compute dtype. The model loader requires CUDA and bitsandbytes;
+  configuration validation alone does not establish hardware/library support.
 - Head-only probe: override `lora.enabled: false`. Adapter settings remain in the
   resolved config but are inactive. Quantization can independently remain on or
   off. All modes keep original backbone weights frozen and fully train the head.
@@ -48,8 +50,8 @@ overrides = {"lora": {
 
 Explicit names will be exact module paths relative to the language backbone;
 regex selection is not part of this initial contract. Exclusions use the same
-exact-path convention. Actual names and preset coverage must be resolved and
-validated against Qwen3.5 in Phase 2. Selection must always exclude vision,
+exact-path convention. Actual names and preset coverage are resolved against
+the bare Qwen3.5 text model when attaching adapters. Selection excludes vision,
 vocabulary projection, and task-head modules. Empty selections, ambiguous
 selections, duplicate names, and explicit target/exclusion overlap fail. Defaults
 are starting values, not a tuned recipe or evidence of checkpoint compatibility.
@@ -77,7 +79,7 @@ template compatibility will be verified during model and tokenizer integration.
 The initial contract requests non-thinking formatting and a normal-initialized,
 fully trainable linear head (standard deviation 0.02, zero bias initialization
 when bias is enabled). `output_dim` derives from the judge kind. The original
-vocabulary head is unused. Adapter dtype handling is settled in Phase 2.
+vocabulary head is unused. Phase 2 adapters train in FP32; heads remain unimplemented.
 
 ## Training settings reserved for later phases
 

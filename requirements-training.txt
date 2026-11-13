@@ -1,0 +1,8 @@
+# Tested offline CPU stack for tiny Qwen3.5 load/forward/backward checks.
+# Install a GPU-compatible torch build separately on the cluster.
+torch>=2.6
+transformers==5.3.0
+peft==0.18.1
+accelerate>=1.0
+# CUDA-only QLoRA dependency; not required for ordinary LoRA:
+# bitsandbytes>=0.43

@@ -84,6 +84,8 @@ class BackboneConfig(_Section):
     enable_thinking: Literal[False] = False
     compute_dtype: DType = "bfloat16"
     max_input_length: int = 4096
+    attention_implementation: Literal["eager", "sdpa"] = "sdpa"
+    gradient_checkpointing: bool = False
 
     def _validate(self) -> None:
         for name in ("checkpoint", "revision"):
