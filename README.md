@@ -15,13 +15,15 @@ Training: **HelpSteer2** preference annotations. External eval: **LLMBar**
 
 ## Repo layout
 ```
-src/orderbias/          Portable core (no cluster paths, no CUDA imports)
+src/orderbias/          Portable core (no cluster paths; lightweight data/config imports)
   config.py             Paths resolved from env vars
   data/
     schema.py           UnifiedExample (shared interface)
     adapters.py         adapt_helpsteer2(), adapt_llmbar()  (minimal adapters)
     loaders.py          load_helpsteer2(), load_llmbar(), load_unified()
     splits.py           prompt-group integrity / split helpers
+  models/               Validated experiment config and judge protocols (no torch)
+configs/                Model and experiment YAML files (see configs/README.md)
 scripts/                build_unified_dataset.py  (run anywhere)
 cluster/                ISOLATED Longleaf layer: SLURM, modules, conda env
 tests/                  offline adapter tests

@@ -1,0 +1,14 @@
+# Candidate configuration; model compatibility is verified in Phase 2.
+backbone:
+  checkpoint: Qwen/Qwen3.5-0.8B
+  revision: main
+  compute_dtype: bfloat16
+  max_input_length: 4096
+lora:
+  enabled: true
+  rank: 8
+  alpha: 16
+  dropout: 0.05
+  target_preset: all_language_linear
+quantization:
+  mode: none

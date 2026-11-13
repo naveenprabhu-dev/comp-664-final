@@ -2,8 +2,10 @@
 
 Everything in this directory is **specific to the Longleaf HPC cluster** and is
 deliberately kept out of `src/`. The portable core (`src/orderbias/`) never
-hardcodes a cluster path or imports CUDA-only libraries; it reads paths from
-environment variables (see `src/orderbias/config.py`). To move the project to a
+hardcodes a cluster path; it reads paths from environment variables (see
+`src/orderbias/config.py`). Data/config/interface imports stay lightweight;
+model and training implementations may explicitly use GPU libraries.
+To move the project to a
 different machine, you only change files here.
 
 ## What lives here

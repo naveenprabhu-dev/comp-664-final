@@ -1,8 +1,8 @@
 # Plan: configurable LoRA judges
 
-Status: design agreed; implementation has not started. Implement and review one
-phase at a time. This document records the intended design, not verified model
-or library compatibility.
+Status: Phase 1 configuration and interfaces implemented; model loading and
+training have not started. Implement and review one phase at a time. This
+document records the intended design, not verified model/library compatibility.
 
 ## Objective and experimental conditions
 
@@ -188,6 +188,12 @@ model download.
 
 Completion: configs express all three conditions and LoRA/QLoRA/head-only modes;
 invalid combinations fail clearly; existing data-only imports still work.
+
+Implemented: lightweight frozen dataclasses and strict YAML loading in
+`models/config.py`, generic tensor contracts in `models/interfaces.py`, and
+model/experiment YAML examples under `configs/`. See `configs/README.md` for
+precedence, overrides, pooling, and truncation decisions. No concrete model,
+tokenizer, adapter resolution, or CUDA execution is included in Phase 1.
 
 ### Phase 2: backbone loading and adapter attachment
 

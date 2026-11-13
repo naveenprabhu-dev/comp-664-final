@@ -1,0 +1,7 @@
+judge:
+  kind: pairwise
+data:
+  augmentation: both_orders
+training:
+  seed: 42
+  max_steps: 1000

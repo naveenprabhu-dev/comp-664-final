@@ -11,6 +11,7 @@ dependencies = [
     "datasets>=2.18",
     "huggingface_hub>=0.23",
     "requests>=2.31",
+    "PyYAML>=6.0",
 ]
 
 [tool.setuptools.packages.find]
