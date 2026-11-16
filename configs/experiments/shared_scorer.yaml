@@ -1,0 +1,7 @@
+judge:
+  kind: shared_scorer
+data:
+  augmentation: none
+training:
+  seed: 42
+  max_steps: 1000

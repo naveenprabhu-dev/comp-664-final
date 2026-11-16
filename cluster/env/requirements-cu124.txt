@@ -1,0 +1,7 @@
+# Install into Python 3.11 venv, from the repository root.
+# python -m pip install -r cluster/env/requirements-cu124.txt
+--extra-index-url https://download.pytorch.org/whl/cu124
+torch==2.6.0+cu124
+-r ../../requirements-training.txt
+-r ../../requirements.txt
+pytest
